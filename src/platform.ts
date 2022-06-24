@@ -7,9 +7,52 @@ import {
   Service,
   Characteristic,
 } from 'homebridge';
-
+import fetch, { Response } from 'node-fetch';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
+import { URLSearchParams } from 'url';
 import { FliprPlatformAccessory } from './platformAccessory';
+
+interface FliprPlatformConfig extends PlatformConfig {
+  username: string;
+  password: string;
+}
+
+export interface FliprModule {
+  ActivationKey: string;
+  IsSuspended: string;
+  Status: {
+    Comment: string;
+    DateTime: string;
+    Status: string;
+  };
+  BatteryPlugDate: string;
+  Comments: string;
+  NoAlertUnil: string;
+  Serial: string;
+  PAC: string;
+  ResetsCounter: string;
+  SigfoxStatus: string;
+  OffsetOrp: string;
+  OffsetTemperature: string;
+  OffsetPh: string;
+  OffsetConductivite: string;
+  IsForSpa: string;
+  Version: string;
+  LastMeasureDateTime: string;
+  CommercialType: {
+    Id: string;
+    Value: string;
+  };
+  SubscribtionValidUntil: string;
+  ModuleType_Id: string;
+  Eco_Mode: string;
+  EnableFliprFirmwareUpgrade: string;
+  FliprFirmwareUpgradeAttempt: string;
+  FliprFirmwareUpgradeStart: string;
+  FliprFirmwareUpgradeEnd: string;
+  BEflipr: string;
+  IsSubscriptionValid: string;
+}
 
 /**
  * HomebridgePlatform
@@ -24,9 +67,11 @@ export class FliprHomebridgePlatform implements DynamicPlatformPlugin {
   // this is used to track restored cached accessories
   public readonly accessories: PlatformAccessory[] = [];
 
+  public access_token?: string;
+
   constructor(
     public readonly log: Logger,
-    public readonly config: PlatformConfig,
+    public readonly config: FliprPlatformConfig,
     public readonly api: API,
   ) {
     this.log.debug('Finished initializing platform:', this.config.name);
@@ -53,76 +98,98 @@ export class FliprHomebridgePlatform implements DynamicPlatformPlugin {
     this.accessories.push(accessory);
   }
 
+  restoreAccessory(existingAccessory) {
+    // the accessory already exists
+    this.log.info(
+      'Restoring existing accessory from cache:',
+      existingAccessory.displayName,
+    );
+
+    // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
+    // existingAccessory.context.device = device;
+    // this.api.updatePlatformAccessories([existingAccessory]);
+
+    // create the accessory handler for the restored accessory
+    // this is imported from `platformAccessory.ts`
+    new FliprPlatformAccessory(this, existingAccessory);
+
+    // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
+    // remove platform accessories when no longer present
+    // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
+    // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
+  }
+
+  addAccessory(fliprModule: FliprModule, uuid) {
+    // the accessory does not yet exist, so we need to create it
+    this.log.info('Adding new accessory:', fliprModule.Serial);
+
+    // create a new accessory
+    const fliprAccessory = new this.api.platformAccessory<{
+      fliprModule: FliprModule;
+    }>(fliprModule.Serial, uuid);
+
+    // store a copy of the device object in the `accessory.context`
+    // the `context` property can be used to store any data about the accessory you may need
+    fliprAccessory.context.fliprModule = fliprModule;
+
+    // create the accessory handler for the newly create accessory
+    // this is imported from `platformAccessory.ts`
+    new FliprPlatformAccessory(this, fliprAccessory);
+
+    // link the accessory to your platform
+    this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
+      fliprAccessory,
+    ]);
+  }
+
   /**
    * This is an example method showing how to register discovered accessories.
    * Accessories must only be registered once, previously created accessories
    * must not be registered again to prevent "duplicate UUID" errors.
    */
-  discoverDevices() {
-    // EXAMPLE ONLY
-    // A real plugin you would discover accessories from the local network, cloud services
-    // or a user-defined array in the platform config.
-    const exampleDevices = [
-      {
-        exampleUniqueId: 'ABCD',
-        exampleDisplayName: 'Bedroom',
+  async discoverDevices() {
+    const res: Response = await fetch('https://apis.goflipr.com/OAuth2/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-    ];
+      body: new URLSearchParams({
+        grant_type: 'password',
+        username: this.config.username,
+        password: this.config.password,
+      }),
+    });
 
-    // loop over the discovered devices and register each one if it has not already been registered
-    for (const device of exampleDevices) {
-      // generate a unique id for the accessory this should be generated from
-      // something globally unique, but constant, for example, the device serial
-      // number or MAC address
-      const uuid = this.api.hap.uuid.generate(device.exampleUniqueId);
+    const { access_token } = await res.json();
+    this.access_token = access_token;
 
-      // see if an accessory with the same uuid has already been registered and restored from
-      // the cached devices we stored in the `configureAccessory` method above
+    const fliprModulesResponse = await fetch(
+      'https://apis.goflipr.com/modules',
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${access_token}`,
+        },
+      },
+    );
+
+    if (!fliprModulesResponse.ok) {
+      this.log.debug('Could not fetch Flipr Modules', fliprModulesResponse);
+      return;
+    }
+
+    const fliprModules: FliprModule[] = await fliprModulesResponse.json();
+
+    for (const fliprModule of fliprModules) {
+      const uuid = this.api.hap.uuid.generate(fliprModule.Serial);
       const existingAccessory = this.accessories.find(
         (accessory) => accessory.UUID === uuid,
       );
-
       if (existingAccessory) {
-        // the accessory already exists
-        this.log.info(
-          'Restoring existing accessory from cache:',
-          existingAccessory.displayName,
-        );
-
-        // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
-        // existingAccessory.context.device = device;
-        // this.api.updatePlatformAccessories([existingAccessory]);
-
-        // create the accessory handler for the restored accessory
-        // this is imported from `platformAccessory.ts`
-        new FliprPlatformAccessory(this, existingAccessory);
-
-        // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
-        // remove platform accessories when no longer present
-        // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
-        // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
+        this.restoreAccessory(existingAccessory);
       } else {
-        // the accessory does not yet exist, so we need to create it
-        this.log.info('Adding new accessory:', device.exampleDisplayName);
-
-        // create a new accessory
-        const accessory = new this.api.platformAccessory(
-          device.exampleDisplayName,
-          uuid,
-        );
-
-        // store a copy of the device object in the `accessory.context`
-        // the `context` property can be used to store any data about the accessory you may need
-        accessory.context.device = device;
-
-        // create the accessory handler for the newly create accessory
-        // this is imported from `platformAccessory.ts`
-        new FliprPlatformAccessory(this, accessory);
-
-        // link the accessory to your platform
-        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
-          accessory,
-        ]);
+        this.addAccessory(fliprModule, uuid);
       }
     }
   }

@@ -1,4 +1,4 @@
-import { API } from 'homebridge';
+import { API, PlatformPluginConstructor } from 'homebridge';
 
 import { PLATFORM_NAME } from './settings';
 import { FliprHomebridgePlatform } from './platform';
@@ -7,5 +7,8 @@ import { FliprHomebridgePlatform } from './platform';
  * This method registers the platform with Homebridge
  */
 export = (api: API) => {
-  api.registerPlatform(PLATFORM_NAME, FliprHomebridgePlatform);
+  api.registerPlatform(
+    PLATFORM_NAME,
+    FliprHomebridgePlatform as unknown as PlatformPluginConstructor,
+  );
 };
