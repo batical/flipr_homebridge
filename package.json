@@ -2,7 +2,7 @@
   "private": true,
   "displayName": "Homebridge Flipr",
   "name": "homebridge-flipr",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Homebride plugin for the flipr API.",
   "license": "Apache-2.0",
   "repository": {
