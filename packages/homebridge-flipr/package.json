@@ -2,7 +2,7 @@
   "private": true,
   "displayName": "Homebridge Flipr",
   "name": "homebridge-flipr",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Homebride plugin for the flipr API.",
   "license": "Apache-2.0",
   "repository": {
@@ -29,7 +29,7 @@
   "dependencies": {
     "@types/node-fetch": "^2.6.2",
     "node-fetch": "2.6.1",
-    "node-flipr": "0.1.1"
+    "node-flipr": "0.1.2"
   },
   "devDependencies": {
     "@types/node": "^16.10.9",
