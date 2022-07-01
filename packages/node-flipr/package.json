@@ -1,0 +1,23 @@
+{
+  "name": "node-flipr",
+  "version": "0.1.0",
+  "description": "Node client for the Flipr Developper API",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bartocc/flipr.git"
+  },
+  "keywords": [
+    "flipr",
+    "homebridge"
+  ],
+  "author": "Julien Palmas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bartocc/flipr/issues"
+  },
+  "homepage": "https://github.com/bartocc/flipr/packages/node-flipr#readme"
+}
