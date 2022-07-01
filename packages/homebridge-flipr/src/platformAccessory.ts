@@ -76,7 +76,7 @@ export class FliprPlatformAccessory {
       survey.PH.Value,
     );
 
-    this.platform.log.debug('Setting water temp to', survey.Temperature);
-    this.platform.log.debug('Setting PH to', survey.PH.Value);
+    this.platform.log.info('Setting water temp to', survey.Temperature);
+    this.platform.log.info('Setting PH to', survey.PH.Value);
   }
 }
