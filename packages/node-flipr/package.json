@@ -2,25 +2,25 @@
   "name": "node-flipr",
   "version": "0.1.0",
   "description": "Node client for the Flipr Developper API",
-  "main": "dist/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+  "keywords": [
+    "flipr",
+    "homebridge"
+  ],
+  "homepage": "https://github.com/bartocc/flipr/packages/node-flipr#readme",
+  "bugs": {
+    "url": "https://github.com/bartocc/flipr/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bartocc/flipr.git"
   },
-  "keywords": [
-    "flipr",
-    "homebridge"
-  ],
-  "author": "Julien Palmas",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/bartocc/flipr/issues"
+  "author": "Julien Palmas",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "homepage": "https://github.com/bartocc/flipr/packages/node-flipr#readme",
   "dependencies": {
     "@types/node-fetch": "^2.6.2",
     "debug": "^4.3.4",
@@ -31,7 +31,27 @@
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "eslint": "^8.0.1",
+    "release-it": "^14.2.1",
+    "release-it-lerna-changelog": "^3.1.0",
     "ts-node": "^10.8.1",
     "typescript": "^4.4.4"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
+  "release-it": {
+    "plugins": {
+      "release-it-lerna-changelog": {
+        "infile": "CHANGELOG.md",
+        "launchEditor": true
+      }
+    },
+    "git": {
+      "tagName": "v${version}"
+    },
+    "github": {
+      "release": true,
+      "tokenRef": "GITHUB_AUTH"
+    }
   }
 }
