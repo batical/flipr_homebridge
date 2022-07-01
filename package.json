@@ -8,15 +8,5 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bartocc/flipr.git"
-  },
-  "version": "0.1.3",
-  "devDependencies": {
-    "release-it-yarn-workspaces": "^2.0.1"
-  },
-  "release-it": {
-    "plugins": {
-      "release-it-yarn-workspaces": true
-    },
-    "npm": false
   }
 }
