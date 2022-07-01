@@ -1,4 +1,4 @@
-import { PlatformAccessory, CharacteristicValue, Service } from 'homebridge';
+import { PlatformAccessory, Service } from 'homebridge';
 import fetch, { Response } from 'node-fetch';
 import { FliprHomebridgePlatform, FliprModule } from './platform';
 
@@ -43,6 +43,7 @@ interface FliprSurvey {
  */
 export class FliprPlatformAccessory {
   waterTemperatureSensorService: Service;
+  lightSensorService: Service;
 
   /**
    * These are just used to create a working example
@@ -73,10 +74,15 @@ export class FliprPlatformAccessory {
       );
 
     const tempSensor = this.platform.Service.TemperatureSensor;
+    const lightSensor = this.platform.Service.LightSensor;
 
     this.waterTemperatureSensorService =
       this.fliprAccessory.getService(tempSensor) ||
       this.fliprAccessory.addService(tempSensor);
+
+    this.lightSensorService =
+      this.fliprAccessory.getService(lightSensor) ||
+      this.fliprAccessory.addService(lightSensor);
 
     this.fetchLastSurvey();
 
@@ -104,6 +110,12 @@ export class FliprPlatformAccessory {
       survey.Temperature,
     );
 
+    this.lightSensorService.updateCharacteristic(
+      this.platform.Characteristic.CurrentAmbientLightLevel,
+      survey.PH.Value,
+    );
+
     this.platform.log.debug('Setting water temp to', survey.Temperature);
+    this.platform.log.debug('Setting PH to', survey.PH.Value);
   }
 }
