@@ -1,6 +1,6 @@
 {
   "references": [
-    { "path": "./packages/node-flipr" },
+    { "path": "./packages/node-flipr-client" },
     { "path": "./packages/homebridge-flipr" }
   ],
   "files": [],

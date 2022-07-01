@@ -2684,7 +2684,7 @@ __metadata:
     eslint: ^8.0.1
     homebridge: ^1.5.0
     node-fetch: 2.6.1
-    node-flipr: 0.1.0
+    node-flipr-client: 0.1.2
     nodemon: ^2.0.13
     rimraf: ^3.0.2
     ts-node: ^10.8.1
@@ -4054,9 +4054,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-flipr@0.1.0, node-flipr@workspace:packages/node-flipr":
+"node-flipr-client@0.1.2, node-flipr-client@workspace:packages/node-flipr-client":
   version: 0.0.0-use.local
-  resolution: "node-flipr@workspace:packages/node-flipr"
+  resolution: "node-flipr-client@workspace:packages/node-flipr-client"
   dependencies:
     "@types/node": ^16.10.9
     "@types/node-fetch": ^2.6.2

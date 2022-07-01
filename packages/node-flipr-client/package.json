@@ -1,12 +1,12 @@
 {
-  "name": "node-flipr",
+  "name": "node-flipr-client",
   "version": "0.1.2",
   "description": "Node client for the Flipr Developper API",
   "keywords": [
     "flipr",
     "homebridge"
   ],
-  "homepage": "https://github.com/bartocc/flipr/packages/node-flipr#readme",
+  "homepage": "https://github.com/bartocc/flipr/packages/node-flipr-client#readme",
   "bugs": {
     "url": "https://github.com/bartocc/flipr/issues"
   },

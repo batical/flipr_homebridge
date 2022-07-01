@@ -1,5 +1,5 @@
 import { PlatformAccessory, Service } from 'homebridge';
-import { FliprModule } from 'node-flipr';
+import { FliprModule } from 'node-flipr-client';
 import { FliprHomebridgePlatform } from './platform';
 
 /**

@@ -7,7 +7,7 @@ import {
   PlatformConfig,
   Service,
 } from 'homebridge';
-import FliprClient, { FliprModule } from 'node-flipr';
+import FliprClient, { FliprModule } from 'node-flipr-client';
 import { FliprPlatformAccessory } from './platformAccessory';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 

@@ -76,7 +76,7 @@ interface FliprSurvey {
 export default class FliprClient {
   declare access_token: string;
 
-  debug = debug('node-flipr');
+  debug = debug('node-flipr-client');
   origin = 'https://apis.goflipr.com';
 
   async authenticate(username, password): Promise<void> {
