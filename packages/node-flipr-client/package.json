@@ -52,5 +52,6 @@
       "release": true,
       "tokenRef": "GITHUB_AUTH"
     }
-  }
+  },
+  "version": "0.0.1"
 }
