@@ -1,57 +1,19 @@
 import {
   API,
+  Characteristic,
   DynamicPlatformPlugin,
   Logger,
   PlatformAccessory,
   PlatformConfig,
   Service,
-  Characteristic,
 } from 'homebridge';
-import fetch, { Response } from 'node-fetch';
-import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-import { URLSearchParams } from 'url';
+import FliprClient, { FliprModule } from 'node-flipr';
 import { FliprPlatformAccessory } from './platformAccessory';
+import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 
 interface FliprPlatformConfig extends PlatformConfig {
   username: string;
   password: string;
-}
-
-export interface FliprModule {
-  ActivationKey: string;
-  IsSuspended: string;
-  Status: {
-    Comment: string;
-    DateTime: string;
-    Status: string;
-  };
-  BatteryPlugDate: string;
-  Comments: string;
-  NoAlertUnil: string;
-  Serial: string;
-  PAC: string;
-  ResetsCounter: string;
-  SigfoxStatus: string;
-  OffsetOrp: string;
-  OffsetTemperature: string;
-  OffsetPh: string;
-  OffsetConductivite: string;
-  IsForSpa: string;
-  Version: string;
-  LastMeasureDateTime: string;
-  CommercialType: {
-    Id: string;
-    Value: string;
-  };
-  SubscribtionValidUntil: string;
-  ModuleType_Id: string;
-  Eco_Mode: string;
-  EnableFliprFirmwareUpgrade: string;
-  FliprFirmwareUpgradeAttempt: string;
-  FliprFirmwareUpgradeStart: string;
-  FliprFirmwareUpgradeEnd: string;
-  BEflipr: string;
-  IsSubscriptionValid: string;
 }
 
 /**
@@ -67,7 +29,7 @@ export class FliprHomebridgePlatform implements DynamicPlatformPlugin {
   // this is used to track restored cached accessories
   public readonly accessories: PlatformAccessory[] = [];
 
-  public access_token?: string;
+  public fliprClient?: FliprClient;
 
   constructor(
     public readonly log: Logger,
@@ -82,8 +44,16 @@ export class FliprHomebridgePlatform implements DynamicPlatformPlugin {
     // to start discovery of new accessories.
     this.api.on('didFinishLaunching', () => {
       log.debug('Executed didFinishLaunching callback');
-      // run the method to discover / register your devices as accessories
-      this.discoverDevices();
+
+      log.info('username', this.config.username);
+      this.fliprClient = new FliprClient();
+      this.fliprClient
+        .authenticate(this.config.username, this.config.password)
+        .then(() => {
+          log.info('Successfully authenticated on Flipr API:');
+          log.debug('token', this.fliprClient?.access_token);
+          this.discoverDevices();
+        });
     });
   }
 
@@ -148,40 +118,15 @@ export class FliprHomebridgePlatform implements DynamicPlatformPlugin {
    * must not be registered again to prevent "duplicate UUID" errors.
    */
   async discoverDevices(): Promise<void> {
-    const res: Response = await fetch('https://apis.goflipr.com/OAuth2/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        grant_type: 'password',
-        username: this.config.username,
-        password: this.config.password,
-      }),
-    });
-
-    const { access_token } = await res.json();
-    this.access_token = access_token;
-
-    const fliprModulesResponse = await fetch(
-      'https://apis.goflipr.com/modules',
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${access_token}`,
-        },
-      },
-    );
-
-    if (!fliprModulesResponse.ok) {
-      this.log.debug('Could not fetch Flipr Modules', fliprModulesResponse);
+    if (!this.fliprClient) {
       return;
     }
 
-    const fliprModules: FliprModule[] = await fliprModulesResponse.json();
+    const fliprModules = await this.fliprClient.modules();
 
     for (const fliprModule of fliprModules) {
+      this.log.info('discovered module', fliprModule.Serial);
+
       const uuid = this.api.hap.uuid.generate(fliprModule.Serial);
       const existingAccessory = this.accessories.find(
         (accessory) => accessory.UUID === uuid,

@@ -1,40 +1,6 @@
 import { PlatformAccessory, Service } from 'homebridge';
-import fetch, { Response } from 'node-fetch';
-import { FliprHomebridgePlatform, FliprModule } from './platform';
-
-interface FliprSurvey {
-  MeasureId: number;
-  Source: string;
-  DateTime: string;
-  Temperature: number;
-  PH: {
-    Label: string;
-    Message: string;
-    Deviation: number;
-    Value: number;
-    DeviationSector: string;
-  };
-  OxydoReductionPotentiel: {
-    Label: string;
-    Value: number;
-  };
-  Conductivity: {
-    Label: string;
-    Level: string;
-  };
-  UvIndex: number;
-  Battery: {
-    Label: string;
-    Deviation: number;
-  };
-  Desinfectant: {
-    Label: string;
-    Message: string;
-    Deviation: number;
-    Value: number;
-    DeviationSector: string;
-  };
-}
+import { FliprModule } from 'node-flipr';
+import { FliprHomebridgePlatform } from './platform';
 
 /**
  * Platform Accessory
@@ -91,19 +57,14 @@ export class FliprPlatformAccessory {
     }, 60000);
   }
 
-  async fetchLastSurvey() {
-    const res: Response = await fetch(
-      `https://apis.goflipr.com/modules/${this.fliprAccessory.context.fliprModule.Serial}/survey/last`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.platform.access_token}`,
-        },
-      },
-    );
+  async fetchLastSurvey(): Promise<void> {
+    if (!this.platform.fliprClient) {
+      return;
+    }
 
-    const survey: FliprSurvey = await res.json();
+    const survey = await this.platform.fliprClient.lastSurvey(
+      this.fliprAccessory.context.fliprModule.Serial,
+    );
 
     this.waterTemperatureSensorService.updateCharacteristic(
       this.platform.Characteristic.CurrentTemperature,
