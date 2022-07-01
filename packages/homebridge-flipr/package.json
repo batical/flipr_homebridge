@@ -1,5 +1,4 @@
 {
-  "private": true,
   "displayName": "Homebridge Flipr",
   "name": "homebridge-flipr",
   "description": "Homebride plugin for the flipr API.",
