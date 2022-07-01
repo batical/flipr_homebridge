@@ -1,6 +1,5 @@
 {
   "name": "node-flipr-client",
-  "version": "0.1.2",
   "description": "Node client for the Flipr Developper API",
   "keywords": [
     "flipr",
