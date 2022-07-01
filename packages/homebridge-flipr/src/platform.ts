@@ -45,12 +45,11 @@ export class FliprHomebridgePlatform implements DynamicPlatformPlugin {
     this.api.on('didFinishLaunching', () => {
       log.debug('Executed didFinishLaunching callback');
 
-      log.info('username', this.config.username);
       this.fliprClient = new FliprClient();
       this.fliprClient
         .authenticate(this.config.username, this.config.password)
         .then(() => {
-          log.info('Successfully authenticated on Flipr API:');
+          log.info('Successfully authenticated on Flipr API');
           log.debug('token', this.fliprClient?.access_token);
           this.discoverDevices();
         });
