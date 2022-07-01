@@ -9,9 +9,7 @@
     "ecmaVersion": 2018,
     "sourceType": "module"
   },
-  "ignorePatterns": [
-    "dist"
-  ],
+  "ignorePatterns": ["dist"],
   "rules": {
     "quotes": ["warn", "single"],
     "indent": ["warn", 2, { "SwitchCase": 1 }],
@@ -28,8 +26,12 @@
     "comma-spacing": ["error"],
     "no-multi-spaces": ["warn", { "ignoreEOLComments": true }],
     "no-trailing-spaces": ["warn"],
-    "lines-between-class-members": ["warn", "always", {"exceptAfterSingleLine": true}],
-    "@typescript-eslint/explicit-function-return-type": "off",
+    "lines-between-class-members": [
+      "warn",
+      "always",
+      { "exceptAfterSingleLine": true }
+    ],
+    "@typescript-eslint/explicit-function-return-type": ["warn"],
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/semi": ["warn"],

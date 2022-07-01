@@ -1,0 +1,9 @@
+{
+  "references": [
+    { "path": "./packages/node-flipr" },
+    { "path": "./packages/homebridge-flipr" }
+  ],
+  "files": [],
+  "include": [],
+  "exclude": ["**/node_modules"]
+}

@@ -91,14 +91,14 @@ export class FliprHomebridgePlatform implements DynamicPlatformPlugin {
    * This function is invoked when homebridge restores cached accessories from disk at startup.
    * It should be used to setup event handlers for characteristics and update respective values.
    */
-  configureAccessory(accessory: PlatformAccessory) {
+  configureAccessory(accessory: PlatformAccessory): void {
     this.log.info('Loading accessory from cache:', accessory.displayName);
 
     // add the restored accessory to the accessories cache so we can track if it has already been registered
     this.accessories.push(accessory);
   }
 
-  restoreAccessory(existingAccessory) {
+  restoreAccessory(existingAccessory): void {
     // the accessory already exists
     this.log.info(
       'Restoring existing accessory from cache:',
@@ -119,7 +119,7 @@ export class FliprHomebridgePlatform implements DynamicPlatformPlugin {
     // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
   }
 
-  addAccessory(fliprModule: FliprModule, uuid) {
+  addAccessory(fliprModule: FliprModule, uuid): void {
     // the accessory does not yet exist, so we need to create it
     this.log.info('Adding new accessory:', fliprModule.Serial);
 
@@ -147,7 +147,7 @@ export class FliprHomebridgePlatform implements DynamicPlatformPlugin {
    * Accessories must only be registered once, previously created accessories
    * must not be registered again to prevent "duplicate UUID" errors.
    */
-  async discoverDevices() {
+  async discoverDevices(): Promise<void> {
     const res: Response = await fetch('https://apis.goflipr.com/OAuth2/token', {
       method: 'POST',
       headers: {
