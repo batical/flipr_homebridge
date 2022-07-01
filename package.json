@@ -9,7 +9,7 @@
     "type": "git",
     "url": "git+https://github.com/bartocc/flipr.git"
   },
-  "version": "0.1.0",
+  "version": "0.1.1",
   "devDependencies": {
     "release-it-yarn-workspaces": "^2.0.1"
   },
