@@ -62,21 +62,45 @@ export class FliprPlatformAccessory {
       return;
     }
 
-    const survey = await this.platform.fliprClient.lastSurvey(
-      this.fliprAccessory.context.fliprModule.Serial,
-    );
+    try {
+      const survey = await this.platform.fliprClient.lastSurvey(
+        this.fliprAccessory.context.fliprModule.Serial,
+      );
 
-    this.waterTemperatureSensorService.updateCharacteristic(
-      this.platform.Characteristic.CurrentTemperature,
-      survey.Temperature,
-    );
+      // Check if survey exists and has data
+      if (!survey) {
+        this.platform.log.warn(
+          `No survey data available for module ${this.fliprAccessory.context.fliprModule.Serial}`,
+        );
+        return;
+      }
 
-    this.lightSensorService.updateCharacteristic(
-      this.platform.Characteristic.CurrentAmbientLightLevel,
-      survey.PH.Value,
-    );
+      // Check if this is a reader module (has temperature data)
+      if (survey.Temperature !== null && survey.Temperature !== undefined) {
+        this.waterTemperatureSensorService.updateCharacteristic(
+          this.platform.Characteristic.CurrentTemperature,
+          survey.Temperature,
+        );
+        this.platform.log.info('Setting water temp to', survey.Temperature);
+      }
 
-    this.platform.log.info('Setting water temp to', survey.Temperature);
-    this.platform.log.info('Setting PH to', survey.PH.Value);
+      // Check if this is a reader module (has PH data)
+      if (
+        survey.PH &&
+        survey.PH.Value !== null &&
+        survey.PH.Value !== undefined
+      ) {
+        this.lightSensorService.updateCharacteristic(
+          this.platform.Characteristic.CurrentAmbientLightLevel,
+          survey.PH.Value,
+        );
+        this.platform.log.info('Setting PH to', survey.PH.Value);
+      }
+    } catch (error) {
+      this.platform.log.error(
+        `Error fetching survey for module ${this.fliprAccessory.context.fliprModule.Serial}:`,
+        error,
+      );
+    }
   }
 }

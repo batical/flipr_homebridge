@@ -119,3 +119,10 @@ dist
 .yarn/build-state.yml
 .pnp.*
 .yarn/install-state.gz
+
+# Test files with credentials
+packages/*/test-*.ts
+# Environment files with credentials
+packages/*/.env
+packages/*/.env.local
+packages/*/.env.test

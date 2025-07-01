@@ -142,8 +142,15 @@ export default class FliprClient {
     return await fliprModulesResponse.json();
   }
 
-  async lastSurvey(serial: FliprModule['Serial']): Promise<FliprSurvey> {
+  async lastSurvey(serial: FliprModule['Serial']): Promise<FliprSurvey | null> {
     const res = await this.get(`/modules/${serial}/survey/last`);
-    return await res.json();
+
+    if (!res.ok) {
+      this.debug(`Could not fetch survey for module ${serial}`, res);
+      return null;
+    }
+
+    const data = await res.json();
+    return data;
   }
 }

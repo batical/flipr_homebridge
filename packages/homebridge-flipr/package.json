@@ -1,17 +1,17 @@
 {
   "name": "homebridge-flipr",
   "displayName": "Homebridge Flipr",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Homebride plugin for the flipr API.",
   "keywords": [
     "homebridge-plugin"
   ],
   "bugs": {
-    "url": "https://github.com/bartocc/homebridge-flipr/issues"
+    "url": "https://github.com/batical/homebridge-flipr/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/bartocc/homebridge-flipr.git"
+    "url": "git://github.com/batical/homebridge-flipr.git"
   },
   "license": "Apache-2.0",
   "main": "dist/index.js",
