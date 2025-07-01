@@ -99,7 +99,7 @@ export default class FliprClient {
   }
 
   async request(
-    method: 'GET' | 'POST',
+    method: 'GET' | 'POST' | 'PUT',
     path,
     body?: BodyInit,
   ): Promise<Response> {
@@ -116,6 +116,10 @@ export default class FliprClient {
       headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
     }
 
+    if (method === 'PUT') {
+      headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    }
+
     return await fetch(`${this.origin}/${path}`, {
       method,
       headers,
@@ -129,6 +133,10 @@ export default class FliprClient {
 
   async post(path, body: BodyInit): Promise<Response> {
     return await this.request('POST', path, body);
+  }
+
+  async put(path, body: BodyInit): Promise<Response> {
+    return await this.request('PUT', path, body);
   }
 
   async modules(): Promise<FliprModule[]> {
@@ -152,5 +160,77 @@ export default class FliprClient {
 
     const data = await res.json();
     return data;
+  }
+
+  // Hub control methods based on Flipr API documentation
+  async getHubState(serial: FliprModule['Serial']): Promise<any> {
+    const res = await this.get(`/hub/${serial}/state`);
+
+    if (!res.ok) {
+      this.debug(`Could not fetch hub state for module ${serial}`, res);
+      return null;
+    }
+
+    return await res.json();
+  }
+
+  async setHubManualState(
+    serial: FliprModule['Serial'],
+    state: boolean,
+  ): Promise<boolean> {
+    try {
+      const stateValue = state ? 'true' : 'false';
+      const res = await this.post(`/hub/${serial}/Manual/${stateValue}`, '');
+
+      if (!res.ok) {
+        this.debug(`Could not set hub manual state for module ${serial}`, res);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      this.debug(`Error setting hub manual state for module ${serial}:`, error);
+      return false;
+    }
+  }
+
+  async setHubMode(
+    serial: FliprModule['Serial'],
+    behavior: 'auto' | 'planning' | 'manual',
+  ): Promise<boolean> {
+    try {
+      const res = await this.put(`/hub/${serial}/mode/${behavior}`, '');
+
+      if (!res.ok) {
+        this.debug(`Could not set hub mode for module ${serial}`, res);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      this.debug(`Error setting hub mode for module ${serial}:`, error);
+      return false;
+    }
+  }
+
+  // Convenience methods
+  async startHub(serial: FliprModule['Serial']): Promise<boolean> {
+    return this.setHubManualState(serial, true);
+  }
+
+  async stopHub(serial: FliprModule['Serial']): Promise<boolean> {
+    return this.setHubManualState(serial, false);
+  }
+
+  async setHubAuto(serial: FliprModule['Serial']): Promise<boolean> {
+    return this.setHubMode(serial, 'auto');
+  }
+
+  async setHubScheduled(serial: FliprModule['Serial']): Promise<boolean> {
+    return this.setHubMode(serial, 'planning');
+  }
+
+  async setHubManual(serial: FliprModule['Serial']): Promise<boolean> {
+    return this.setHubMode(serial, 'manual');
   }
 }

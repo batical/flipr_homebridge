@@ -124,7 +124,20 @@ export class FliprHomebridgePlatform implements DynamicPlatformPlugin {
     const fliprModules = await this.fliprClient.modules();
 
     for (const fliprModule of fliprModules) {
-      this.log.info('discovered module', fliprModule.Serial);
+      // Only process AnalysR (temperature/chlorine) modules
+      const isAnalysR = fliprModule.CommercialType.Value === 'AnalysR';
+
+      if (!isAnalysR) {
+        this.log.info(
+          `Skipping module ${fliprModule.Serial} of type ${fliprModule.CommercialType.Value}`,
+        );
+        continue;
+      }
+
+      this.log.info(
+        `discovered ${fliprModule.CommercialType.Value} module`,
+        fliprModule.Serial,
+      );
 
       const uuid = this.api.hap.uuid.generate(fliprModule.Serial);
       const existingAccessory = this.accessories.find(
